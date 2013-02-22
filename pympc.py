@@ -4,12 +4,14 @@ import json
 import functools
 
 def asjson(f):
+	"""Decorator: convert result to JSON."""
 	@functools.wraps(f)
 	def wrapped(*args, **kwargs):
 		return json.dumps(f(*args, **kwargs))
 	return wrapped
 
 def statusasjson(f):
+	"""Decorator: discard result, return status() as JSON instead."""
 	@functools.wraps(f)
 	def wrapped(*args, **kwargs):
 		f(*args, **kwargs)
@@ -18,6 +20,7 @@ def statusasjson(f):
 
 class MPC:
 	def __init__(self, host = "localhost", port = 6600):
+		"""Initialize connection."""
 		self.__sock = socket.create_connection( (host, port), None )
 		self.__file = self.__sock.makefile()
 		
@@ -105,27 +108,36 @@ class MPC:
 	
 __mpc = None
 lastStatus = None
+__newKeys = {
+	"listplaylistinfo": ["file"],
+	"lsinfo": ["directory", "file", "playlist"],
+	"playlistinfo": ["file"],
+	"search": ["file"],
+}
 
 def init(host = "localhost", port = 6600):
-	"""Initialize singleton mpc instance. Return initial OK."""
+	"""Initialize singleton mpc instance."""
 	global __mpc
 	__mpc = MPC(host, port)
 
 def genericSingle(cmd, args = []):
-	"""Handle all commands that return an single or no assignment.
-	* status, stats
-	*"""
+	"""Handle all commands that return an single or no assignment."""
 	__mpc.send(cmd + " " + " ".join(map(lambda x: '"' + str(x) + '"', args)))
 	return __mpc.readSingleReply()
 
-def genericList(cmd, args = [], newKeys = []):
-	"""Handle all commands that return a list of assignments.
-	* lsinfo
-	"""
+def genericList(cmd, args = [], newKeys = None):
+	"""Handle all commands that return a list of assignments."""
+	if newKeys == None:
+		if cmd in __newKeys:
+			newKeys = __newKeys[cmd]
+		else:
+			newKeys = []
+	
 	__mpc.send(cmd + " " + " ".join(map(lambda x: '"' + str(x) + '"', args)))
 	return __mpc.readListReply(newKeys)
 
 def status():
+	"""Return current status. Combines results of status and currentsong and updates lastStatus variable."""
 	res = {
 		"status": genericSingle("status")[1],
 		"song": genericSingle("currentsong")[1],
@@ -134,17 +146,7 @@ def status():
 	lastStatus = res
 	return res
 
-def ls(folder):
-	return genericList("lsinfo", [folder], newKeys = ["directory", "playlist", "file"])
-
-def playlist():
-	return genericList("playlistinfo", newKeys = ["file"])
-
-def search(tag, query):
-	return genericList("search", [tag, query], newKeys = ["file"])
-
 if __name__ == "__main__":
 	init()
 	print(genericSingle("status"))
-	__mpc.dumpResult('lsinfo "incoming/gereon/Juggernaut/Black Pagoda"')
 	
