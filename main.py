@@ -3,8 +3,14 @@ import urllib2
 import json
 
 from flask import Flask, render_template, request
+from flask.ext.assets import Environment, Bundle
+
 app = Flask(__name__)
 app.debug = True
+
+assets = Environment(app)
+
+assets.register('js_all', Bundle('shared.js', filters='jsmin', output='gen/packed.js'))
 
 __mutedVolume = 0
 
@@ -55,6 +61,14 @@ def ajax_toggle(flag):
 @pympc.statusasjson
 def ajax_status():
 	pass
+
+# stats
+@app.route('/stats')
+@pympc.asjson
+def ajax_stats():
+	res = pympc.genericSingle("stats")[1]
+	res["load"] = repr(os.getloadavg())
+	return res
 
 # volume controls
 @app.route('/volume/<cmd>')
