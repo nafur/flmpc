@@ -7,7 +7,9 @@
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
 		<script src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
-		<script src="static/shared.js"></script>
+		{% assets "js_all" %}
+		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+		{% endassets %}
 		<style>
 		.cmdpanel > li > button, .btn-icon {
 			margin-left: 0px;
@@ -17,6 +19,10 @@
 		}
 		table.dataTable thead th {
 			border-bottom: 0px;
+		}
+		.popover {
+			max-width: 300px;
+			width: 300px;
 		}
 		</style>
 	</head>
@@ -63,28 +69,25 @@
 		<div class="navbar navbar-inverse navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
-					<a href="#" class="brand">flmpc @ {{hostname}}</a>
-					<ul class="nav">
-						<li class="navbar-text" id="track"></li>
-					</ul>
+					<button class="btn-link navbar-text" id="track" data-toggle="popover" data-placement="bottom" data-content="" data-html="true" title=""></button>
 					<ul class="nav pull-right cmdpanel">
 						<li><a href="#"><span id="elapsed"></span> / <span id="length"></span></a></li>
 						<li class="divider-vertical"></li>
-						<li><button class="btn btn-link" onclick="$.get('/previous', updateStatus)"><i class="icon-step-backward icon-white"></i></button></li>
-						<li><button id="btn_pause" class="btn btn-link hide" onclick="$.get('/pause/1', updateStatus)"><i class="icon-pause icon-white"></i></button></li>
-						<li><button id="btn_play" class="btn btn-link" onclick="$.get('/pause/0', updateStatus)"><i class="icon-play icon-white"></i></button></li>
-						<li><button class="btn btn-link" onclick="$.get('/stop', updateStatus)"><i class="icon-stop icon-white"></i></button></li>
-						<li><button class="btn btn-link" onclick="$.get('/next', updateStatus)"><i class="icon-step-forward icon-white"></i></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/previous', updateStatus)" rel="tooltip" title="previous song"><i class="icon-step-backward icon-white"></i></button></li>
+						<li><button id="btn_pause" class="btn btn-link hide" onclick="$.get('/pause/1', updateStatus)" rel="tooltip" title="pause"><i class="icon-pause icon-white"></i></button></li>
+						<li><button id="btn_play" class="btn btn-link" onclick="$.get('/pause/0', updateStatus)" rel="tooltip" title="play"><i class="icon-play icon-white"></i></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/stop', updateStatus)" rel="tooltip" title="stop"><i class="icon-stop icon-white"></i></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/next', updateStatus)" rel="tooltip" title="next song"><i class="icon-step-forward icon-white"></i></button></li>
 						<li class="divider-vertical"></li>
-						<li><button class="btn btn-link" onclick="$.get('/volume/down', updateStatus)"><i class="icon-volume-down icon-white"></i></button></li>
-						<li><button id="vol_unmute" class="btn btn-link" onclick="$.get('/volume/unmute', updateStatus)"><i class="icon-volume-off icon-white"></i></button></li>
-						<li><button id="vol_mute" class="btn btn-link" onclick="$.get('/volume/mute', updateStatus)"></button></li>
-						<li><button class="btn btn-link" onclick="$.get('/volume/up', updateStatus)"><i class="icon-volume-up icon-white"></i></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/volume/down', updateStatus)" rel="tooltip" title="volume down"><i class="icon-volume-down icon-white"></i></button></li>
+						<li><button id="vol_unmute" class="btn btn-link" onclick="$.get('/volume/unmute', updateStatus)" rel="tooltip" title="unmute"><i class="icon-volume-off icon-white"></i></button></li>
+						<li><button id="vol_mute" class="btn btn-link" onclick="$.get('/volume/mute', updateStatus)" rel="tooltip" title="mute"></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/volume/up', updateStatus)" rel="tooltip" title="volume up"><i class="icon-volume-up icon-white"></i></button></li>
 						<li class="divider-vertical"></li>
-						<li><button class="btn btn-link" onclick="$.get('/toggle/random', updateStatus)"><i id="flag_random" class="icon-random icon-white"></i></button></li>
-						<li><button class="btn btn-link" onclick="$.get('/toggle/repeat', updateStatus)"><i id="flag_repeat" class="icon-refresh icon-white"></i></button></li>
-						<li><button class="btn btn-link" onclick="$.get('/toggle/single', updateStatus)"><i id="flag_single" class="icon-repeat icon-white"></i></button></li>
-						<li><button class="btn btn-link" onclick="$.get('/toggle/consume', updateStatus)"><i id="flag_consume" class="icon-minus-sign icon-white"></i></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/toggle/random', updateStatus)" rel="tooltip" title="toggle random"><i id="flag_random" class="icon-random icon-white"></i></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/toggle/repeat', updateStatus)" rel="tooltip" title="toggle refresh"><i id="flag_repeat" class="icon-refresh icon-white"></i></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/toggle/single', updateStatus)" rel="tooltip" title="toggle single"><i id="flag_single" class="icon-repeat icon-white"></i></button></li>
+						<li><button class="btn btn-link" onclick="$.get('/toggle/consume', updateStatus)" rel="tooltip" title="toggle consume"><i id="flag_consume" class="icon-minus-sign icon-white"></i></button></li>
 					</ul>
 				</div>
 			</div>
@@ -103,7 +106,7 @@
 						<thead>
 							<tr>
 								<th>Track</th>
-								<th>Actions<button class="btn-link pull-right" onclick="updatePlaylist();"><i class="icon-refresh"></i></button></th>
+								<th>Actions<button class="btn-link pull-right" onclick="updatePlaylist();" rel="tooltip" title="refresh playlist"><i class="icon-refresh"></i></button></th>
 							</tr>
 						</thead>
 					</table>
@@ -112,7 +115,7 @@
 					<ul id="databaseBC" class="breadcrumb">
 						<li><button class="btn-link" onclick="loadFolder('');">/</button></li>
 					</ul>
-					<table class="table table-bordered table-striped table-hover">
+					<table class="table table-bordered table-striped table-hover" style="margin-bottom: 50px;">
 						<thead>
 							<tr>
 								<th>Name</th>
@@ -130,10 +133,10 @@
 							<button type="button" class="btn" onclick="search();"><i class="icon-search"></i> Search</button>
 						</div>
 						<div class="pull-right">
-							<label class="radio"><input type="radio" name="tagRadio" value="artist"> Artist</label>
+							<label class="radio"><input type="radio" name="tagRadio" value="artist" checked="checked"> Artist</label>
 							<label class="radio"><input type="radio" name="tagRadio" value="album"> Album</label>
 							<label class="radio"><input type="radio" name="tagRadio" value="title"> Title</label>
-							<label class="radio"><input type="radio" name="tagRadio" value="any" checked="checked"> Any</label>
+							<label class="radio"><input type="radio" name="tagRadio" value="any"> Any</label>
 						</div>
 					</form>
 					<table class="table table-bordered table-striped table-hover" id="searchTable">
@@ -147,28 +150,48 @@
 				</div>
 			</div>
 		</div>
+		<div class="navbar navbar-inverse navbar-fixed-bottom">
+			<div class="navbar-inner">
+				<div class="container">
+					<a href="#" class="brand">flmpc @ {{hostname}}</a>
+					<ul class="nav">
+						<li class="navbar-text">load: <span
+						id="stat_load"></span>, uptime: <span id="stat_uptime"></span></li>
+					</ul>
+					<ul class="nav pull-right">
+						<li class="navbar-text">
+							<span id="stat_artists"></span> artists,
+							<span id="stat_albums"></span> albums,
+							<span id="stat_songs"></span> songs,
+							<span id="stat_playtime"></span> playtime.
+						</li>
+						<li><button class="btn btn-link" onclick="$.get('/stats', updateStats)" rel="tooltip" title="refresh stats"><i class="icon-refresh icon-white"></i></button></li>
+					</ul>
+				</div>
+			</div>
+		</div>
 		<script language="javascript">
-			var plTable;
-			function toggleClass(id, data, cls) {
-				if (data == 1) $(id).addClass(cls);
-				else $(id).removeClass(cls);
-			}
-			function trackName(track) {
-				if (track["Name"]) return track["Name"];
-				if (track["Artist"] && track["Title"]) {
-					if (track["Album"]) return track["Artist"] + " - " + track["Album"] + " - " + track["Title"];
-					return track["Artist"] + " - " + track["Title"];
+			function buildTrackPopover(data) {
+				var res = Array();
+				if (data["song"]["Title"]) {
+					var name = data["song"]["Title"];
+					if (data["song"]["MUSICBRAINZ_TRACKID"]) name = "<a href=\"http://musicbrainz.org/recording/" + data["song"]["MUSICBRAINZ_TRACKID"] + "\">" + name + "</a>";
+					res.push("<b>" + name + "</b>");
 				}
-				return track["file"];
-			}
-			function formatTime(sec) {
-				if (!sec) return "--";
-				if (sec.indexOf(":") > -1) sec = sec.substr(0, sec.indexOf(":"));
-				var date = new Date(sec * 1000);
-				var mins = (date.getHours() - 1)*60 + date.getMinutes();
-				var secs = date.getSeconds();
-				if (secs < 10) secs = "0" + secs;
-				return mins + ":" + secs;
+				if (data["song"]["Artist"]) {
+					var name = data["song"]["Artist"];
+					if (data["song"]["MUSICBRAINZ_ARTISTID"]) name = "<a href=\"http://musicbrainz.org/artist/" + data["song"]["MUSICBRAINZ_ARTISTID"] + "\">" + name + "</a>";
+					res.push("by <b>" + name + "</b>");
+				}
+				if (data["song"]["Album"]) {
+					var name = data["song"]["Album"];
+					if (data["song"]["MUSICBRAINZ_ALBUMID"]) name = "<a href=\"http://musicbrainz.org/release/" + data["song"]["MUSICBRAINZ_ALBUMID"] + "\">" + name + "</a>";
+					if (data["song"]["Track"]) name += " (" + data["song"]["Track"] + ")";
+					res.push("on <b>" + name + "</b>");
+				}
+				if (data["song"]["Date"]) res.push("from <b>" + data["song"]["Date"] + "</b>");
+				if (data["status"]["bitrate"]) res.push("at <b>" + data["status"]["bitrate"] + " kbps</b>");
+				return res.join("<br />");
 			}
 			function updateStatus(data) {
 				data = $.parseJSON(data);
@@ -181,14 +204,21 @@
 				toggleClass("#vol_mute", data["status"]["volume"] == 0, "hide");
 				toggleClass("#vol_unmute", data["status"]["volume"] != 0, "hide");
 				$("#track").html(trackName(data["song"]));
+				$("#track").attr("data-content", buildTrackPopover(data));
+				$("#track").attr("title", trackName(data["song"]));
 				$("#title").html("flmpc - " + trackName(data["song"]));
 				$("#elapsed").html(formatTime(data["status"]["elapsed"]));
 				$("#length").html(formatTime(data["song"]["Time"]));
 				$("#vol_mute").html(data["status"]["volume"] + " \%");
 			}
-			
-			function buildTrack(data, type, full) {
-				return trackName(full);
+			function updateStats(data) {
+				data = $.parseJSON(data);
+				$("#stat_load").html(data["load"]);
+				$("#stat_uptime").html(formatLongTime(data["uptime"]));
+				$("#stat_artists").html(data["artists"]);
+				$("#stat_albums").html(data["albums"]);
+				$("#stat_songs").html(data["songs"]);
+				$("#stat_playtime").html(formatLongTime(data["db_playtime"]));
 			}
 			function buildActions(data, type, full) {
 				var res =  
@@ -199,12 +229,12 @@
 			}
 			
 			function loadPlaylist(data) {
-				plTable = $("#playlist").dataTable({
+				$("#playlist").dataTable({
 					"bProcessing": true,
 					"bSort":false,
 					"bFilter":false,
 					"bPaginate":false,
-					"sScrollY": ($(window).height() - 200),
+					"sScrollY": ($(window).height() - 220),
 					"sAjaxSource": '/playlist/get',
 					"bDeferRender": true,
 					"aoColumns":[
@@ -221,7 +251,7 @@
 				});
 			}
 			function updatePlaylist(data) {
-				plTable.fnReloadAjax();
+				$("#playlist").dataTable().fnReloadAjax();
 			}
 			function addStream() {
 				$.post('/playlist/addstream', {"stream": $("#addStreamURL").val()}, updatePlaylist);
@@ -287,7 +317,7 @@
 					"bSort":false,
 					"bFilter":false,
 					"bPaginate":false,
-					"sScrollY": ($(window).height() - 300),
+					"sScrollY": ($(window).height() - 250),
 					"sAjaxSource": '/search/' + tag + '/' + query,
 					"bDeferRender": true,
 					"aoColumns":[
@@ -323,10 +353,12 @@
 			}
 			
 			$(function() {
+				$("#track").popover();
 				setInterval(function() {
 					$.get('/status', updateStatus);
 				}, 1000);
 				$.get('/status', updateStatus);
+				$.get('/stats', updateStats);
 				loadPlaylist();
 				loadFolder("");
 			});
